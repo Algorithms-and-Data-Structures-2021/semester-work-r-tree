@@ -138,7 +138,6 @@ int main(int /*argc*/, char** /*argv*/)
 
   memset(thingArray, 0, sizeof(thingArray)); // Nullify array, size is known here
 
-
   // Create intance of RTree
 
   SomeThingTree tree; 
