@@ -10,13 +10,14 @@
 class RTree{
 
  public:
+  void insert(std::vector<float> coords, std::vector<float> dimensions, int entry);
 
   class Node{
    public:
     std::vector<float> coords;
     std::vector<float> dimensions;
-    std::list<Node> children = new list<Node>();
-    Node parent;
+    std::list<Node*> children;
+    Node* parent;
     bool leaf;
     static Node* buildRoot(bool asLeaf);
 
@@ -29,14 +30,21 @@ class RTree{
     int entry;
     Entry(std::vector<float> coords, std::vector<float> dimensions, int entry);
   };
+ private:
+  RTree::Node chooseLeaf(RTree::Node n, RTree::Entry e);
+  float getRequiredExpansion(std::vector<float> coords, std::vector<float> dimensions, Node e);
+  float getArea(std::vector<float> dimensions);
+  std::vector<Node*> splitNode(Node *n);
+  void tighten(std::vector<RTree::Node*> nodes);
 
   int maxEntries;
   int minEntries;
   int size;
   static int numDims;
   Node *root;
-  std::vector<float> pointDims = new list<float>();
+  std::vector<float>* pointDims;
 
  public:
   RTree(int maxEntries, int minEntries);
+
 };
