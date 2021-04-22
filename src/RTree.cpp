@@ -194,11 +194,11 @@ void RTree::tighten(std::vector<RTree::Node *> nodes) {
         c->parent = n;
         if (c->coords[i] < minCoords[i])
         {
-          minCoords[i] = c.coords[i];
+          minCoords[i] = c->coords[i];
         }
-        if ((c.coords[i] + c.dimensions[i]) > maxCoords[i])
+        if ((c->coords[i] + c->dimensions[i]) > maxCoords[i])
         {
-          maxCoords[i] = (c.coords[i] + c.dimensions[i]);
+          maxCoords[i] = (c->coords[i] + c->dimensions[i]);
         }
       }
     }
@@ -207,9 +207,6 @@ void RTree::tighten(std::vector<RTree::Node *> nodes) {
       // Convert max coords to dimensions
       maxCoords[i] -= minCoords[i];
     }
-
-    System.arraycopy(minCoords, 0, n.coords, 0, numDims);
-    System.arraycopy(maxCoords, 0, n.dimensions, 0, numDims);
 
   }
 
