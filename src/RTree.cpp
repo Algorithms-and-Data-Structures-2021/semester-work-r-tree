@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cassert>
+#include <float.h>
 #include <cstdarg>
 #include "RTree.h"
 
@@ -14,6 +15,7 @@ RTree::Node::Node(std::vector<float> coords, std::vector<float> dimensions, bool
   //  std::copy_n(coords.begin(), coords.size(), this->coords.begin());
   //  std::copy_n(dimensions.begin(), dimensions.size(), this->dimensions.begin());
 }
+
 
 // TO CREATE ROOT OR ANOTHER NODE
 RTree::Node *RTree::Node::buildRoot(bool asLeaf) {
@@ -28,10 +30,12 @@ RTree::Node *RTree::Node::buildRoot(bool asLeaf) {
   return new RTree::Node(initCoords, initDimensions, asLeaf);
 }
 
+
 RTree::Entry::Entry(std::vector<float> coords, std::vector<float> dimensions, int entry)
     : Node(coords, dimensions, true) {
   this->entry = entry;
 }
+
 
 // R-TREE CONSTRUCTOR
 RTree::RTree(int maxEntries, int minEntries) {
@@ -41,27 +45,29 @@ RTree::RTree(int maxEntries, int minEntries) {
   this->root = Node::buildRoot(true);
 }
 
+
 //INSERT
 void RTree::insert(std::vector<float> coords, std::vector<float> dimensions, int entry) {
   assert(coords.size() == numDims);
   assert(dimensions.size() == numDims);
 
   Entry *e = new Entry(coords, dimensions, entry);
-  Node l = chooseLeaf(*root, *e);
+  RTree::Node l = chooseLeaf(*root, *e);
   l.children.push_back(e);
   size++;
   e->parent = &l;
+
   if (l.children.size() > maxEntries) {
-    Node[] splits = splitNode(l);
+    std::vector<Node*> splits = splitNode(&l);
     adjustTree(splits[0], splits[1]);
   } else {
-    adjustTree(l, nullptr);
+    adjustTree(&l, nullptr);
   }
 }
 
 //INSERT HELP METHODS
 
-//chooseLeaf and help methods
+//CHOOSE LEAF
 RTree::Node RTree::chooseLeaf(RTree::Node n, RTree::Entry e) {
   if (n.leaf) {
     return n;
@@ -69,6 +75,7 @@ RTree::Node RTree::chooseLeaf(RTree::Node n, RTree::Entry e) {
 
   float minInc = std::numeric_limits<float>::max();
   Node *next = nullptr;
+
   for (RTree::Node *c : n.children) {
     float inc = getRequiredExpansion(c->coords, c->dimensions, e);
 
@@ -78,21 +85,26 @@ RTree::Node RTree::chooseLeaf(RTree::Node n, RTree::Entry e) {
     } else if (inc == minInc) {
       float curArea = 1.0f;
       float thisArea = 1.0f;
+
       for (int i = 0; i < c->dimensions.size(); i++) {
         curArea *= next->dimensions.at(static_cast<unsigned long>(i));
         thisArea *= c->dimensions.at(static_cast<unsigned long>(i));
       }
+
       if (thisArea < curArea) {
         next = c;
       }
     }
   }
+
   return chooseLeaf(*next, e);
 }
+
 
 float RTree::getRequiredExpansion(std::vector<float> coords, std::vector<float> dimensions, RTree::Node e) {
   float area = getArea(dimensions);
   auto *deltas = new std::vector<float>(dimensions.size());
+
   for (unsigned long i = 0; i < deltas->size(); i++) {
     if ((coords.at(i) + dimensions.at(i)) < (e.coords.at(i) + e.dimensions.at(i))) {
       deltas->at(i) = e.coords.at(i) + e.dimensions.at(i) - coords.at(i) - dimensions.at(i);
@@ -100,49 +112,60 @@ float RTree::getRequiredExpansion(std::vector<float> coords, std::vector<float> 
       deltas->at(i) = coords.at(i) - e.coords.at(i);
     }
   }
+
   float expanded = 1.0f;
+
   for (unsigned long i = 0; i < dimensions.size(); i++) {
     expanded *= dimensions.at(i) + deltas->at(i);
   }
+
   return (expanded - area);
 }
 
+
 float RTree::getArea(std::vector<float> dimensions) {
   float area = 1.0f;
+
   for (unsigned long i = 0; i < dimensions.size(); i++) {
     area *= dimensions.at(i);
   }
+
   return area;
 }
 
-//splitNode
+//SPLIT NODE
 std::vector<RTree::Node *> RTree::splitNode(RTree::Node *n) {
   std::vector<Node *> nn = std::vector<RTree::Node *>{n, new Node(n->coords, n->dimensions, n->leaf)};
   nn.at(1)->parent = n->parent;
+
   if (nn.at(1) != nullptr) {
     nn.at(1)->parent->children.push_back(nn.at(1));
   }
+
   std::list<Node *> cc(n->children);
   n->children.clear();
 
-  std::vector<Node *> ss = pickSeeds(cc);
+  std::vector<Node *> ss = pickSeeds(&cc);
+
   nn.at(0)->children.push_back(ss.at(0));
   nn.at(1)->children.push_back(ss.at(1));
 
   tighten(nn);
 
-  while (!cc.isEmpty()) {
+  while (cc.size() != 0) {
     if ((nn[0]->children.size() >= static_cast<unsigned long>(minEntries))
         && (nn.at(1)->children.size() + cc.size() == static_cast<unsigned long>(minEntries))) {
       std::fill(cc.begin(), cc.end(), nn[1]);  //возможно не работает
       cc.clear();
       tighten(nn);  //not sure this is required
+
       return nn;
     } else if ((nn[1]->children.size() >= static_cast<unsigned long>(minEntries))
                && (nn.at(0)->children.size() + cc.size() == static_cast<unsigned long>(minEntries))) {
       std::fill(cc.begin(), cc.end(), nn[0]);  //возможно не работает
       cc.clear();
       tighten(nn);
+
       return nn;
     }
 
@@ -154,36 +177,50 @@ std::vector<RTree::Node *> RTree::splitNode(RTree::Node *n) {
 
     if (e0 < e1) {
       preferred = nn.at(0);
+
     } else if (e0 > e1) {
       preferred = nn.at(1);
+
     } else {
       float a0 = getArea(nn.at(0)->dimensions);
       float a1 = getArea(nn.at(1)->dimensions);
+
       if (a0 < a1) {
         preferred = nn.at(0);
+
       } else if (e0 > a1) {
         preferred = nn.at(1);
+
       } else {
         if (nn.at(0)->children.size() < nn.at(1)->children.size()) {
           preferred = nn.at(0);
+
         } else if (nn.at(0)->children.size() > nn.at(1)->children.size()) {
           preferred = nn.at(1);
+
         } else {
-          preferred = nn.at(static_cast<unsigned long>(random()));
+          preferred = nn.at(static_cast<unsigned long>(rand()));
         }
       }
     }
+
     preferred->children.push_back(c);
     tighten(std::vector<RTree::Node *>{preferred});
+
   }
+
   return nn;
 }
+
+
 void RTree::tighten(std::vector<RTree::Node *> nodes) {
   assert(((nodes.size() >= 1), L"Pass some nodes to tighten!"));
+
   for(RTree::Node *n: nodes){
     assert(n->children.size() > 0);
     auto *minCoords = new float[static_cast<unsigned long>(numDims)];
     auto *maxCoords = new float[static_cast<unsigned long>(numDims)];
+
     for (int i = 0; i < numDims; i++)
     {
       minCoords[i] = std::numeric_limits<float>::max();
@@ -202,12 +239,101 @@ void RTree::tighten(std::vector<RTree::Node *> nodes) {
         }
       }
     }
+
     for (int i = 0; i < numDims; i++)
     {
       // Convert max coords to dimensions
       maxCoords[i] -= minCoords[i];
     }
+  }
+}
 
+
+void RTree::adjustTree(RTree::Node *n, RTree::Node *nn) {
+  if(n == root){
+    if(nn != nullptr){
+      root = Node::buildRoot(false);
+      root->children.push_back(n);
+      n->parent = root;
+      root->children.push_back(nn);
+      nn->parent = root;
+    }
+
+    std::vector<RTree::Node *> value{root};
+    tighten(value);
+
+    return;
   }
 
+  std::vector<RTree::Node *> value{n};
+  tighten(value);
+
+  if(nn != nullptr){
+    std::vector<RTree::Node *> value{nn};
+    tighten(value);
+
+    if(n->parent->children.size() > minEntries){
+      std::vector<Node*> splits = splitNode(n->parent);
+      adjustTree(splits[0], splits[1]);
+    }
+  }
+
+  if(n->parent != nullptr){
+    adjustTree(n->parent, nullptr);
+  }
+}
+
+std::vector<RTree::Node *> RTree::pickSeeds(std::list<Node *> *nn) {
+  std::vector<RTree::Node> bestPair(2);
+  bool foundBestPair = false;
+  float bestSep = 0.0f;
+
+  for(int i = 0; i < numDims; i++){
+    float dimLb = FLT_MAX, dimMinUb = FLT_MAX;
+    float dimUb = -1.0f * FLT_MAX, dimMaxLb = -1.0f * FLT_MAX;
+    Node *nMinUb = nullptr;
+    Node *nMaxLb = nullptr;
+
+    for (Node *n : *nn){
+      if (n->coords[i] < dimLb){
+        dimLb = n->coords[i];
+      }
+
+      if (n->dimensions[i] + n->coords[i] > dimUb){
+        dimUb = n->dimensions[i] + n->coords[i];
+      }
+
+      if (n->coords[i] > dimMaxLb){
+        dimMaxLb = n->coords[i];
+        nMaxLb = n;
+      }
+
+      if (n->dimensions[i] + n->coords[i] < dimMinUb){
+        dimMinUb = n->dimensions[i] + n->coords[i];
+        nMinUb = n;
+      }
+    }
+
+    float sep = (nMaxLb == nMinUb) ? -1.0f : abs((dimMinUb - dimMaxLb) / (dimUb - dimLb));
+
+    if (sep >= bestSep){
+      bestPair[0] = *nMaxLb;
+      bestPair[1] = *nMinUb;
+      bestSep = sep;
+      foundBestPair = true;
+    }
+  }
+
+  if (!foundBestPair){
+    std::vector<const RTree::Node*> bestPair = {nn[0], nn[1]};
+  }
+
+  nn->remove(reinterpret_cast<Node *const &>(bestPair[0]));
+  nn->remove(reinterpret_cast<Node *const &>(bestPair[1]));
+
+  return bestPair;
+}
+
+RTree::Node *pickNext(std::vector<RTree::Node *> &cc) {
+  return cc[0];
 }
