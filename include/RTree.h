@@ -49,5 +49,6 @@ class RTree{
  public:
   RTree(int maxEntries, int minEntries);
   void insert(std::vector<float> coords, std::vector<float> dimensions, int entry);
+  virtual bool deleting(std::vector<float> &coords, std::vector<float> &dimensions, int entry);
 
 };

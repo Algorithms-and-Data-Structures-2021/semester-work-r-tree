@@ -314,7 +314,7 @@ std::vector<RTree::Node *> RTree::pickSeeds(std::list<Node *> *nn) {
       }
     }
 
-    float sep = (nMaxLb == nMinUb) ? -1.0f : abs((dimMinUb - dimMaxLb) / (dimUb - dimLb));
+    float sep = (nMaxLb == nMinUb) ? -1.0F : static_cast<float>(std::abs((dimMinUb - dimMaxLb) / (dimUb - dimLb)));
 
     if (sep >= bestSep){
       bestPair[0] = *nMaxLb;
@@ -333,7 +333,40 @@ std::vector<RTree::Node *> RTree::pickSeeds(std::list<Node *> *nn) {
 
   return bestPair;
 }
-
 RTree::Node *pickNext(std::vector<RTree::Node *> &cc) {
   return cc[0];
 }
+
+//DELETE
+
+bool RTree::deleting(std::vector<float> &coords, std::vector<float> &dimensions, int entry) {
+  assert(coords.size() == numDims);
+  assert(dimensions.size() == numDims);
+
+  RTree::Node *l = findLeaf(root, coords, dimensions, entry);
+
+  if(l == nullptr){
+    std::wcout << "No such node. Why?.." << std::endl;
+    findLeaf(root, coords, dimensions, entry);
+  }
+
+  assert(((l != nullptr), L"Could not find leaf for entry to delete"));
+  assert(((l->leaf), L"Entry is not found at leaf?!?"));
+
+  auto li = l->children.begin();
+  int removed = 0;
+
+  while (li != l->children.end()) {
+    auto *e = (Entry*) *li;
+    if(e->entry == entry){
+      removed = e->entry;
+      //Вот тут должна быть логика ListIterator java. Тема, подумай как заменить.
+    }
+  }
+
+
+
+
+
+  }
+
