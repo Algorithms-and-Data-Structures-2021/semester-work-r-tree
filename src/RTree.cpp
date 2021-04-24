@@ -337,36 +337,178 @@ RTree::Node *pickNext(std::vector<RTree::Node *> &cc) {
   return cc[0];
 }
 
-//DELETE
 
+void RTree::search(std::vector<float> *coords, std::vector<float> *dimensions, RTree::Node *n, std::vector<int> *results){
+  if (n->leaf){
+    for (Node *e : n->children){
+      if (isOverlap(coords, dimensions, &e->coords, &e->dimensions)){
+        results->push_back(((Entry *) e)->entry);
+      }
+    }
+  }else{
+    for (Node *c : n->children){
+      if (isOverlap(coords, dimensions, &c->coords, &c->dimensions)){
+        search(coords, dimensions, c, results);
+      }
+    }
+  }
+}
+
+
+std::vector<int> RTree::search(std::vector<float> *coords, std::vector<float> *dimensions){
+  assert(coords->size() == numDims);
+  assert(dimensions->size() == numDims);
+  std::vector<int> *results{};
+
+  search(coords, dimensions, root, results);
+
+  return *results;
+}
+
+
+bool RTree::isOverlap(std::vector<float> *scoords, std::vector<float> *sdimensions, std::vector<float> *coords,
+                      std::vector<float> *dimensions){
+
+  const float FUDGE_FACTOR=1.001f;
+
+  for (int i = 0; i < scoords->size(); i++){
+    bool overlapInThisDimension = false;
+
+    if (scoords[i] == coords[i]){
+      overlapInThisDimension = true;
+    }else if (scoords[i] < coords[i]){
+      if (scoords[i] + (FUDGE_FACTOR * sdimensions[i]) >= coords[i]){
+        overlapInThisDimension = true;
+      }
+    }
+    else if (scoords[i] > coords[i]){
+      if (coords[i] + (FUDGE_FACTOR * dimensions[i]) >= scoords[i])
+      {
+        overlapInThisDimension = true;
+      }
+    }
+    if (!overlapInThisDimension){
+
+      return false;
+    }
+  }
+
+  return true;
+}
+
+//DELETE
 bool RTree::deleting(std::vector<float> &coords, std::vector<float> &dimensions, int entry) {
   assert(coords.size() == numDims);
   assert(dimensions.size() == numDims);
 
-  RTree::Node *l = findLeaf(root, coords, dimensions, entry);
+  RTree::Node *l = findLeaf(root, &coords, &dimensions, entry);
 
   if(l == nullptr){
     std::wcout << "No such node. Why?.." << std::endl;
-    findLeaf(root, coords, dimensions, entry);
+    findLeaf(root, &coords, &dimensions, entry);
   }
 
   assert(((l != nullptr), L"Could not find leaf for entry to delete"));
   assert(((l->leaf), L"Entry is not found at leaf?!?"));
 
   auto li = l->children.begin();
-  int removed = 0;
+  auto removed = 0;
 
   while (li != l->children.end()) {
-    auto *e = (Entry*) *li;
-    if(e->entry == entry){
+    Entry *e = (Entry *) *li;
+    if (e->entry == entry) {
       removed = e->entry;
-      //Вот тут должна быть логика ListIterator java. Тема, подумай как заменить.
+      l->children.remove(*li);
+      break;
     }
+    li++;
   }
 
-
-
-
-
+  if (removed != 0){
+    condenseTree(l);
+    size--;
   }
 
+  if (size == 0){
+    root = Node::buildRoot(true);
+  }
+
+  return (removed != 0);
+}
+
+bool RTree::deleting(std::vector<float> coords, int entry){
+  return deleting(coords, pointDims, entry);
+}
+
+RTree::Node RTree::findLeaf(RTree::Node *n, std::vector<float> *coords, std::vector<float> *dimensions, int entry){
+  if (n->leaf){
+    for (Node *c : n->children){
+      if (((Entry *) c)->entry == entry){
+        return *n;
+      }
+    }
+
+    return nullptr;
+  } else {
+
+    for (Node *c : n->children){
+      if (isOverlap(&c->coords, &c->dimensions, coords, dimensions)){
+        Node result = findLeaf(c, coords, dimensions, entry);
+        if (result != nullptr){
+          return result;
+        }
+      }
+    }
+
+    return nullptr;
+  }
+}
+
+void RTree::condenseTree(RTree::Node *n){
+  std::vector<RTree::Node> q = {};
+
+  while (n != root){
+    if (n->leaf && (n->children.size() < minEntries)){
+      q.addAll(n->children);
+      n->parent->children.remove(n);
+    }
+    else if (!n->leaf && (n->children.size() < minEntries)){
+      std::list<Node> toVisit = {};
+
+      while (toVisit.size() > 0){
+        Node c = toVisit.back();
+        if (c.leaf){
+          q.addAll(c.children);
+        }else{
+          toVisit.addAll(c.children);
+        }
+      }
+
+      n->parent->children.remove(n);
+    }else{
+      std::vector<Node *> argument;
+      argument.push_back(n);
+      tighten(argument);
+    }
+
+    n = n->parent;
+  }
+
+  if (root->children.size() == 0){
+    root = Node::buildRoot(true);
+  } else if ((root->children.size() == 1) && (!root->leaf)){
+    root = root->children.front();
+    root->parent = nullptr;
+  }else{
+    std::vector<Node *> argument;
+    argument.push_back(root);
+    tighten(argument);
+  }
+
+  for (Node ne : q){
+    Entry e = (Entry *) ne;
+    insert(e.coords, e.dimensions, e.entry);
+  }
+
+  size -= q.size();
+}
