@@ -3,7 +3,6 @@
 #include <cmath>
 #include <cassert>
 #include <float.h>
-#include <cstdarg>
 #include "RTree.h"
 
 // NODE STRUCTURE
@@ -325,7 +324,14 @@ std::vector<RTree::Node *> RTree::pickSeeds(std::list<Node *> *nn) {
   }
 
   if (!foundBestPair){
-    std::vector<const RTree::Node*> bestPair = {nn[0], nn[1]};
+    auto first = 0;
+    auto second = 0;
+
+
+    bestPair.clear();
+    bestPair.push_back(nn->front());
+    nn->remove(nn->front());
+    bestPair.push_back(nn->front());
   }
 
   nn->remove(reinterpret_cast<Node *const &>(bestPair[0]));
@@ -469,7 +475,10 @@ void RTree::condenseTree(RTree::Node *n){
 
   while (n != root){
     if (n->leaf && (n->children.size() < minEntries)){
-      q.addAll(n->children);
+      for(auto elem : n->children){
+        q.push_back(*elem);
+      }
+
       n->parent->children.remove(n);
     }
     else if (!n->leaf && (n->children.size() < minEntries)){
@@ -478,9 +487,13 @@ void RTree::condenseTree(RTree::Node *n){
       while (toVisit.size() > 0){
         Node c = toVisit.back();
         if (c.leaf){
-          q.addAll(c.children);
+          for(auto elem : c.children){
+            q.push_back(*elem);
+          }
         }else{
-          toVisit.addAll(c.children);
+          for(auto elem : c.children){
+            toVisit.push_back(*elem);
+          }
         }
       }
 
