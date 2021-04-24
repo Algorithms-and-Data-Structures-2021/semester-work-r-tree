@@ -388,12 +388,12 @@ void RTree::search(std::vector<float> *coords, std::vector<float> *dimensions, R
 }
 
 
-std::vector<int> RTree::search(std::vector<float> *coords, std::vector<float> *dimensions){
-  assert(coords->size() == numDims);
-  assert(dimensions->size() == numDims);
+std::vector<int> RTree::search(std::vector<float> coords, std::vector<float> dimensions){
+  assert(coords.size() == numDims);
+  assert(dimensions.size() == numDims);
   std::vector<int> *results{};
 
-  search(coords, dimensions, root, results);
+  search(&coords, &dimensions, root, results);
 
   return *results;
 }
