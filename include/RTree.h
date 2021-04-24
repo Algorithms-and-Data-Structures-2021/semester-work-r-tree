@@ -36,9 +36,9 @@ class RTree{
   std::vector<Node*> splitNode(Node *n);
   void tighten(std::vector<RTree::Node*> nodes);
   void adjustTree(RTree::Node *n, RTree::Node *nn);
-  std::vector<RTree::Node *> pickSeeds(std::list<Node *> *nn);
+  std::vector<RTree::Node *> pickSeeds(std::vector<Node *> *nn);
   bool deleting(std::vector<float> &coords, std::vector<float> &dimensions, int entry);
-  RTree::Node *pickNext(std::list<RTree::Node *> &cc);
+  RTree::Node *pickNext(std::vector<RTree::Node *> &cc);
   bool isOverlap(std::vector<float> scoords, std::vector<float> sdimensions, std::vector<float> coords,
                         std::vector<float> dimensions);
   void search(std::vector<float> *coords, std::vector<float> *dimensions, RTree::Node *n, std::vector<int> *results);

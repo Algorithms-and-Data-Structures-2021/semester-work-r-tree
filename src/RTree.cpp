@@ -3,7 +3,10 @@
 #include <cmath>
 #include <cassert>
 #include <float.h>
-#include "RTree.h"
+#include <RTree.h>
+
+int RTree::numDims;
+
 
 // NODE STRUCTURE
 RTree::Node::Node(std::vector<float> coords, std::vector<float> dimensions, bool leaf) {
@@ -18,8 +21,8 @@ RTree::Node::Node(std::vector<float> coords, std::vector<float> dimensions, bool
 
 // TO CREATE ROOT OR ANOTHER NODE
 RTree::Node *RTree::Node::buildRoot(bool asLeaf) {
-  std::vector<float> initCoords(numDims);
-  std::vector<float> initDimensions(numDims);
+  std::vector<float> initCoords(static_cast<unsigned long>(numDims));
+  std::vector<float> initDimensions(static_cast<unsigned long>(RTree::numDims));
 
   for (int i = 0; i < numDims; i++) {
     initCoords[i] = static_cast<float>(std::sqrt(std::numeric_limits<float>::max()));
@@ -148,10 +151,10 @@ std::vector<RTree::Node *> RTree::splitNode(RTree::Node *n) {
     nn.at(1)->parent->children.push_back(nn.at(1));
   }
 
-  std::list<Node *> cc(n->children);
+  std::vector<Node *> cc(n->children);
   n->children.clear();
 
-  std::vector<Node *> ss = pickSeeds(&cc);
+  std::vector<Node *> ss = pickSeeds(cc);
 
   nn.at(0)->children.push_back(ss.at(0));
   nn.at(1)->children.push_back(ss.at(1));
@@ -289,7 +292,7 @@ void RTree::adjustTree(RTree::Node *n, RTree::Node *nn) {
   }
 }
 
-std::vector<RTree::Node *> RTree::pickSeeds(std::list<Node *> *nn) {
+std::vector<RTree::Node *> RTree::pickSeeds(std::vector<Node *> *nn) {
   std::vector<RTree::Node*> bestPair(2);
   bool foundBestPair = false;
   float bestSep = 0.0f;
@@ -348,9 +351,10 @@ std::vector<RTree::Node *> RTree::pickSeeds(std::list<Node *> *nn) {
 }
 
 
-RTree::Node *pickNext(std::vector<RTree::Node *> &cc) {
+RTree::Node *RTree::pickNext(std::vector<RTree::Node *> &cc) {
   return cc[0];
 }
+
 
 
 void RTree::search(std::vector<float> *coords, std::vector<float> *dimensions, RTree::Node *n, std::vector<int> *results){
@@ -534,3 +538,4 @@ void RTree::condenseTree(RTree::Node *n){
 
   size -= q.size();
 }
+
