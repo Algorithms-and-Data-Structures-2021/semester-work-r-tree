@@ -24,7 +24,7 @@ RTree::Node *RTree::Node::buildRoot(bool asLeaf) {
   std::vector<float> initCoords(static_cast<unsigned long>(numDims));
   std::vector<float> initDimensions(static_cast<unsigned long>(RTree::numDims));
 
-  for (int i = 0; i < numDims; i++) {
+  for (int i = 0; i < 2; i++) {
     initCoords[i] = static_cast<float>(std::sqrt(std::numeric_limits<float>::max()));
     initDimensions[i] = -2.0f * static_cast<float>(std::sqrt(std::numeric_limits<float>::max()));
   }
@@ -151,10 +151,10 @@ std::vector<RTree::Node *> RTree::splitNode(RTree::Node *n) {
     nn.at(1)->parent->children.push_back(nn.at(1));
   }
 
-  std::vector<Node *> cc(n->children);
+  std::vector<Node *> cc = n->children;
   n->children.clear();
 
-  std::vector<Node *> ss = pickSeeds(cc);
+  std::vector<Node *> ss = pickSeeds(&cc);
 
   nn.at(0)->children.push_back(ss.at(0));
   nn.at(1)->children.push_back(ss.at(1));
@@ -340,12 +340,26 @@ std::vector<RTree::Node *> RTree::pickSeeds(std::vector<Node *> *nn) {
 
     bestPair.clear();
     bestPair.push_back(nn->front());
-    nn->remove(nn->front());
+    nn->erase(nn->begin() + 1);
     bestPair.push_back(nn->front());
   }
 
-  nn->remove(reinterpret_cast<Node *const &>(bestPair[0]));
-  nn->remove(reinterpret_cast<Node *const &>(bestPair[1]));
+  int firstIndex = 0;
+  int secondIndex = 0;
+
+  for(int i = 0; i < nn->size(); i++){
+    if(nn->at(i) == bestPair[0]){
+      firstIndex = i + 1;
+    }
+
+    if(nn->at(i) == bestPair[1]){
+      secondIndex = i;
+    }
+
+  }
+
+  nn->erase(nn->begin() + firstIndex);
+  nn->erase(nn->begin() + secondIndex);
 
   return bestPair;
 }
@@ -354,7 +368,6 @@ std::vector<RTree::Node *> RTree::pickSeeds(std::vector<Node *> *nn) {
 RTree::Node *RTree::pickNext(std::vector<RTree::Node *> &cc) {
   return cc[0];
 }
-
 
 
 void RTree::search(std::vector<float> *coords, std::vector<float> *dimensions, RTree::Node *n, std::vector<int> *results){
@@ -415,6 +428,7 @@ bool RTree::isOverlap(std::vector<float> scoords, std::vector<float> sdimensions
   return true;
 }
 
+
 //DELETE
 bool RTree::deleting(std::vector<float> &coords, std::vector<float> &dimensions, int entry) {
   assert(coords.size() == numDims);
@@ -437,7 +451,15 @@ bool RTree::deleting(std::vector<float> &coords, std::vector<float> &dimensions,
     Entry *e = (Entry *) *li;
     if (e->entry == entry) {
       removed = e->entry;
-      l->children.remove(*li);
+      int index = 0;
+
+      for(int i = 0; i < l->children.size(); i++){
+        if(l->children.at(i) == *li){
+          index = i + 1;
+        }
+      }
+
+      l->children.erase(l->children.begin() + index);
       break;
     }
     li++;
@@ -455,9 +477,11 @@ bool RTree::deleting(std::vector<float> &coords, std::vector<float> &dimensions,
   return (removed != 0);
 }
 
+
 bool RTree::deleting(std::vector<float> coords, int entry){
   return deleting(coords, pointDims, entry);
 }
+
 
 RTree::Node* RTree::findLeaf(RTree::Node *n, std::vector<float> *coords, std::vector<float> *dimensions, int entry){
   if (n->leaf){
@@ -483,6 +507,7 @@ RTree::Node* RTree::findLeaf(RTree::Node *n, std::vector<float> *coords, std::ve
   }
 }
 
+
 void RTree::condenseTree(RTree::Node *n){
   std::vector<RTree::Node> q = {};
 
@@ -492,7 +517,14 @@ void RTree::condenseTree(RTree::Node *n){
         q.push_back(*elem);
       }
 
-      n->parent->children.remove(n);
+      int index = 0;
+      for(int i = 0; i < n->parent->children.size(); i++){
+        if(n->parent->children.at(i) == n){
+          index = i + 1;
+        }
+      }
+
+      n->parent->children.erase(n->parent->children.begin() + index);
     }
     else if (!n->leaf && (n->children.size() < minEntries)){
       std::list<Node> toVisit = {};
@@ -510,7 +542,14 @@ void RTree::condenseTree(RTree::Node *n){
         }
       }
 
-      n->parent->children.remove(n);
+      int index = 0;
+      for(int i = 0; i < n->parent->children.size(); i++){
+        if(n->parent->children.at(i) == n){
+          index = i + 1;
+        }
+      }
+
+      n->parent->children.erase(n->parent->children.begin() + index);
     }else{
       std::vector<Node *> argument;
       argument.push_back(n);
@@ -538,4 +577,3 @@ void RTree::condenseTree(RTree::Node *n){
 
   size -= q.size();
 }
-

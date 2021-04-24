@@ -14,7 +14,7 @@ class RTree{
    public:
     std::vector<float> coords;
     std::vector<float> dimensions;
-    std::list<Node*> children;
+    std::vector<Node*> children;
     Node* parent;
     bool leaf;
     static Node* buildRoot(bool asLeaf);
