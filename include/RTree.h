@@ -44,17 +44,18 @@ class RTree{
   void search(std::vector<float> *coords, std::vector<float> *dimensions, RTree::Node *n, std::vector<int> *results);
   RTree::Node* findLeaf(RTree::Node *n, std::vector<float> *coords, std::vector<float> *dimensions, int entry);
   void condenseTree(RTree::Node *n);
+  void insert(std::vector<float> coords, std::vector<float> dimensions, int entry);
   int maxEntries;
   int minEntries;
   int size;
 
   static int numDims;
   Node *root;
-  std::vector<float>* pointDims;
+  std::vector<float> pointDims;
 
  public:
   RTree(int maxEntries, int minEntries);
-  void insert(std::vector<float> coords, std::vector<float> dimensions, int entry);
+  void insert(std::vector<float> coords, int entry);
   std::vector<int> search(std::vector<float> *coords, std::vector<float> *dimensions);
   bool deleting(std::vector<float> coords, int entry);
 };

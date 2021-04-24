@@ -46,6 +46,11 @@ RTree::RTree(int maxEntries, int minEntries) {
 
 
 //INSERT
+void RTree::insert(std::vector<float> coords, int entry){
+  insert(coords, pointDims, entry);
+}
+
+
 void RTree::insert(std::vector<float> coords, std::vector<float> dimensions, int entry) {
   assert(coords.size() == numDims);
   assert(dimensions.size() == numDims);
@@ -63,6 +68,8 @@ void RTree::insert(std::vector<float> coords, std::vector<float> dimensions, int
     adjustTree(&l, nullptr);
   }
 }
+
+
 
 //INSERT HELP METHODS
 
@@ -339,6 +346,8 @@ std::vector<RTree::Node *> RTree::pickSeeds(std::list<Node *> *nn) {
 
   return bestPair;
 }
+
+
 RTree::Node *pickNext(std::vector<RTree::Node *> &cc) {
   return cc[0];
 }
@@ -443,7 +452,7 @@ bool RTree::deleting(std::vector<float> &coords, std::vector<float> &dimensions,
 }
 
 bool RTree::deleting(std::vector<float> coords, int entry){
-  return deleting(coords, *pointDims, entry);
+  return deleting(coords, pointDims, entry);
 }
 
 RTree::Node* RTree::findLeaf(RTree::Node *n, std::vector<float> *coords, std::vector<float> *dimensions, int entry){
