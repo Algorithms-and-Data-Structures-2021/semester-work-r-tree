@@ -40,10 +40,11 @@ RTree::Entry::Entry(std::vector<float> coords, std::vector<float> dimensions, in
 
 
 // R-TREE CONSTRUCTOR
-RTree::RTree(int maxEntries, int minEntries) {
-  this->maxEntries = maxEntries;
-  this->minEntries = minEntries;
+RTree::RTree() {
+  this->maxEntries = 3;
+  this->minEntries = 2;
   this->numDims = 2;
+  this->pointDims = {0, 0};
   this->root = Node::buildRoot(true);
 }
 

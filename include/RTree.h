@@ -54,7 +54,7 @@ class RTree{
   std::vector<float> pointDims;
 
  public:
-  RTree(int maxEntries, int minEntries);
+  RTree();
   void insert(std::vector<float> coords, int entry);
   std::vector<int> search(std::vector<float> *coords, std::vector<float> *dimensions);
   bool deleting(std::vector<float> coords, int entry);

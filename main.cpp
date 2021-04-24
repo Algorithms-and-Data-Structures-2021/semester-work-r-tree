@@ -6,7 +6,7 @@
 using namespace std;
 
 int main(int argc, char *argv[]) {
-  RTree *a = new RTree(3, 2);
+  RTree *a = new RTree();
 
   a->insert(std::vector<float>{1, 0}, 0);
   a->insert(std::vector<float>{11, 11}, 1);
