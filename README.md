@@ -1,12 +1,10 @@
 R-Tree
 
-[![CMake](https://github.com/Algorithms-and-Data-Structures-2021/semester-work-template/actions/workflows/cmake.yml/badge.svg)](https://github.com/Algorithms-and-Data-Structures-2021/semester-work-template/actions/workflows/cmake.yml)
+[![CMake](https://github.com/Algorithms-and-Data-Structures-2021/semester-work-r-tree/actions/workflows/cmake.yml/badge.svg)](https://github.com/Algorithms-and-Data-Structures-2021/semester-work-r-tree/actions/workflows/cmake.yml)
 
-**_Измените status badge сверху для отображения статуса сборки вашего проекта._**
+Ссылка на [Google Drive](https://drive.google.com/drive/folders/1ddeC8PrXWq_y_pHifsi7SI74G1HFJOz6) с набором данных.
 
-`Actions > CMake > ... > Create status badge`
-
-_Краткое описание семестрового проекта. Следует отразить информацию по следующим пунктам:_
+_Краткое описание семестрового проекта._
 
 - _Реализуется структура R-tree._
 - _R-дерево - древовидная структура данных, используется для организации доступа к пространственным данным, то есть для индексации многомерной информации._
@@ -23,7 +21,7 @@ _Краткое описание семестрового проекта. Сле
 | Калугин Артем        | 33.3         |  _самозванец_          |
 
 **Девиз команды**
-> ♂Welcome to the gym, dungeon master!♂
+> Ничего не понимаю! Ладно, притворюсь, что понял...
 
 ## Структура проекта
 
@@ -88,16 +86,6 @@ python generate_csv_bench_dataset.py --samples 1000 <output> [args ...]
 
 - `--samples` - количество генерируемых элементов;
 - `<output>` - выходной файл и т.д.
-
-Тестовые данные представлены в CSV формате (см.
-[`dataset/data/dataset-example.csv`](dataset/data/dataset-example.csv)):
-
-```csv
-id, full_name
-0, "Ramil Safin"
-1, "Bulat Abbyasov"
-...
-```
 
 #### Контрольные тесты (benchmarks)
 
