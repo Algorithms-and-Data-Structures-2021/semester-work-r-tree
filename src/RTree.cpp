@@ -225,14 +225,13 @@ void RTree::tighten(std::vector<RTree::Node *> nodes) {
   assert(((nodes.size() >= 1), L"Pass some nodes to tighten!"));
 
   for(RTree::Node *n: nodes){
+    std::cout << n->children.size() << std::endl;
     assert(n->children.size() > 0);
+    std::cout << "PROSHLO" << std::endl;
 
     std::vector<float> minCoords{0, 0};
-//    minCoords.reserve(numDims);
 
     std::vector<float> maxCoords{0, 0};
-//    maxCoords.reserve(numDims);
-
 
     for (unsigned long long int i = 0; i < numDims; i++){
       minCoords.at(i) = std::numeric_limits<float>::max();
