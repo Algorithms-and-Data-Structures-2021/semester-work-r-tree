@@ -442,8 +442,8 @@ bool RTree::deleting(std::vector<float> &coords, std::vector<float> &dimensions,
     findLeaf(root, &coords, &dimensions, entry);
   }
 
-  assert(((l != nullptr), L"Could not find leaf for entry to delete"));
-  assert(((l->leaf), L"Entry is not found at leaf?!?"));
+  assert(l != nullptr);
+  assert(l->leaf);
 
   auto li = l->children.begin();
   auto removed = 0;
