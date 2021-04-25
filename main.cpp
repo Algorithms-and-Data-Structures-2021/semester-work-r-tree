@@ -23,14 +23,13 @@ int main(int argc, char *argv[]) {
   a->insert(std::vector<float>{7, 5}, 13);
 
 //  auto result = a->search(std::vector<float>{0, 0}, std::vector<float>{10, 10});
-//  auto result2 = a->deleting(std::vector<float>{10, 12}, 8);
-
+//  auto result2 = a->deleting(std::vector<float>{10, 10}, 8);
+//
 //  for(auto elem : result){
 //    std::cout << elem;
 //  }
-
+//
 //  std::cout << result2;
-
 
   return 0;
 }

@@ -73,8 +73,6 @@ void RTree::insert(std::vector<float> coords, std::vector<float> dimensions, int
   }
 }
 
-
-
 //INSERT HELP METHODS
 
 //CHOOSE LEAF
@@ -228,33 +226,35 @@ void RTree::tighten(std::vector<RTree::Node *> nodes) {
 
   for(RTree::Node *n: nodes){
     assert(n->children.size() > 0);
-    auto *minCoords = new float[static_cast<unsigned long>(numDims)];
-    auto *maxCoords = new float[static_cast<unsigned long>(numDims)];
 
-    for (int i = 0; i < numDims; i++)
-    {
-      minCoords[i] = std::numeric_limits<float>::max();
-      maxCoords[i] = 0.000000;
+    std::vector<float> minCoords{0, 0};
+//    minCoords.reserve(numDims);
 
-      for (Node *c : n->children)
-      {
+    std::vector<float> maxCoords{0, 0};
+//    maxCoords.reserve(numDims);
+
+
+    for (unsigned long long int i = 0; i < numDims; i++){
+      minCoords.at(i) = std::numeric_limits<float>::max();
+      maxCoords.at(i) = 0.000000;
+
+      for (Node *c : n->children){
         c->parent = n;
-        if (c->coords[i] < minCoords[i])
-        {
-          minCoords[i] = c->coords[i];
+        if (c->coords[i] < minCoords.at(i)){
+          minCoords.at(i) = c->coords[i];
         }
-        if ((c->coords[i] + c->dimensions[i]) > maxCoords[i])
-        {
-          maxCoords[i] = (c->coords[i] + c->dimensions[i]);
+
+        if ((c->coords[i] + c->dimensions[i]) > maxCoords.at(i)){
+          maxCoords.at(i) = (c->coords[i] + c->dimensions[i]);
         }
       }
     }
 
-    for (int i = 0; i < numDims; i++)
-    {
+    for (int i = 0; i < numDims; i++){
       // Convert max coords to dimensions
-      maxCoords[i] -= minCoords[i];
+      maxCoords.at(i) -= minCoords.at(i);
     }
+
   }
 }
 
@@ -335,10 +335,6 @@ std::vector<RTree::Node *> RTree::pickSeeds(std::vector<Node *> *nn) {
   }
 
   if (!foundBestPair){
-    auto first = 0;
-    auto second = 0;
-
-
     bestPair.clear();
     bestPair.push_back(nn->front());
     nn->erase(nn->begin() + 1);
