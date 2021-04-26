@@ -1,12 +1,10 @@
 R-Tree
 
-[![CMake](https://github.com/Algorithms-and-Data-Structures-2021/semester-work-template/actions/workflows/cmake.yml/badge.svg)](https://github.com/Algorithms-and-Data-Structures-2021/semester-work-template/actions/workflows/cmake.yml)
+[![CMake](https://github.com/Algorithms-and-Data-Structures-2021/semester-work-r-tree/actions/workflows/cmake.yml/badge.svg)](https://github.com/Algorithms-and-Data-Structures-2021/semester-work-r-tree/actions/workflows/cmake.yml)
 
-**_Измените status badge сверху для отображения статуса сборки вашего проекта._**
+Ссылка на [Google Drive](https://drive.google.com/drive/folders/1ddeC8PrXWq_y_pHifsi7SI74G1HFJOz6) с набором данных.
 
-`Actions > CMake > ... > Create status badge`
-
-_Краткое описание семестрового проекта. Следует отразить информацию по следующим пунктам:_
+_Краткое описание семестрового проекта._
 
 - _Реализуется структура R-tree._
 - _R-дерево - древовидная структура данных, используется для организации доступа к пространственным данным, то есть для индексации многомерной информации._
@@ -23,7 +21,7 @@ _Краткое описание семестрового проекта. Сле
 | Калугин Артем        | 33.3         |  _самозванец_          |
 
 **Девиз команды**
-> ♂Welcome to the gym, dungeon master!♂
+> Ничего не понимаю! Ладно, притворюсь, что понял...
 
 ## Структура проекта
 
@@ -73,9 +71,7 @@ cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo && cmake --config RelWithDebInfo --bu
 
 #### Генерация тестовых данных
 
-_Опишите формат хранения (JSON, XML, CSV, YAML и т.д.) и процесс генерации тестовых данных._
-
-_Разрешается использовать собственный формат хранения данных._
+Данные генерирует скрипт, написанный на языке Python (dataset/generate_csv_dataset.py). Он генерирует число в диапазоне от 0 до 100, используя функцию randit() из библиотеки random. Запускается через командную строку, принимает следующие аргументы: путь к файлу, куда следует сохранить результат, и количество данных. Скрипт написан с использованием библиотеки argparse. Сохраняет данные в формате .csv. 
 
 Генерация тестового набора данных в
 формате [comma-seperated values (CSV)](https://en.wikipedia.org/wiki/Comma-separated_values):
@@ -90,42 +86,6 @@ python generate_csv_bench_dataset.py --samples 1000 <output> [args ...]
 
 - `--samples` - количество генерируемых элементов;
 - `<output>` - выходной файл и т.д.
-
-Тестовые данные представлены в CSV формате (см.
-[`dataset/data/dataset-example.csv`](dataset/data/dataset-example.csv)):
-
-```csv
-id, full_name
-0, "Ramil Safin"
-1, "Bulat Abbyasov"
-...
-```
-
-**Примечание**. Для удобства запуска контрольных тестов рекомендуется организовывать данные в директориях, например:
-
-```shell
-dataset/data/
-  add/
-    01/
-      100.csv
-      ...
-      5000000.csv
-    02/ ...
-    03/ ...
-    ...
-    10/ ...
-  search/
-    01/
-      100.csv
-      ...
-      5000000.csv
-    ...
-    10/ ...
-  ...
-```
-
-По названию директории `/dataset/data/add` можно понять, что здесь хранятся наборы данных для контрольных тестов по
-**добавлению** элементов в структуру данных. Названия файлов `100.csv`. `5000000.csv` и т.д. хранят информацию о размере набора данных (т.е. количество элементов). 
 
 #### Контрольные тесты (benchmarks)
 
