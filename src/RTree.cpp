@@ -225,9 +225,7 @@ void RTree::tighten(std::vector<RTree::Node *> nodes) {
   assert(((nodes.size() >= 1), L"Pass some nodes to tighten!"));
 
   for(RTree::Node *n: nodes){
-    std::cout << n->children.size() << std::endl;
     assert(n->children.size() > 0);
-    std::cout << "PROSHLO" << std::endl;
 
     std::vector<float> minCoords{0, 0};
 
