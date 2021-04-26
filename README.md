@@ -82,6 +82,7 @@ cd dataset
 
 # запуск Python-скрипта
 python generate_csv_dataset.py data/insert/<название папки>
+```
 
 #### Контрольные тесты (benchmarks)
 
