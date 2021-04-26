@@ -93,6 +93,7 @@ python generate_csv_dataset.py data/insert/<название папки>
 ##### Список контрольных тестов
 
 | Название             | Описание         | Метрики |
+| :---                 |   ---:           |  ---:   |
 | `benchmark_insert`   | вставка объекта  | время   |
 | `benchmark_search`   | поиск по области | время   |
 | `benchmark_delete`   | удаление объекта | время   |
