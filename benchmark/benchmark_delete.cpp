@@ -18,7 +18,7 @@ int main() {
 
   // Tip 1: входные аргументы позволяют более гибко контролировать параметры вашей программы
   const auto path = string (kDatasetPath)+"/insert/";
-  const auto output_path = string (kProjectPath)+"/benchmark/result/benchmark_search_result.csv";
+  const auto output_path = string (kProjectPath)+"/benchmark/result/benchmark_delete_result.csv";
 
   // работа с набором данных
   vector <string> folders = {"01", "02", "03", "04", "05", "06", "07", "08", "09", "10"};
@@ -53,6 +53,7 @@ int main() {
             tree.insert(coords,j);
           }
         }
+        auto k = 1;
         input_file.close();
         line = "1";
         input_file = ifstream(path + folder + "/" + file + ".csv");
@@ -62,6 +63,7 @@ int main() {
             if (line.empty()) {
               break;
             }
+            k++;
             string delimiter = ",";
             string token1 = line.substr(0, line.find(delimiter));
             string token2 = line.substr(line.find(delimiter)+1);
@@ -69,7 +71,7 @@ int main() {
             coords.push_back(static_cast<float>(stoi(token1)));
             coords.push_back(static_cast<float>(stoi(token2)));
             const auto time_point_before_search = chrono::steady_clock::now();
-            tree.search(coords,dimensions);
+            tree.deleting(coords,k);
             const auto time_point_after_search = chrono::steady_clock::now();
             time_diff_search += time_point_after_search - time_point_before_search;
           }
