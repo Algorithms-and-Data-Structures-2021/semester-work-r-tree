@@ -1,8 +1,6 @@
-R-Tree
+# R-Tree
 
 [![CMake](https://github.com/Algorithms-and-Data-Structures-2021/semester-work-r-tree/actions/workflows/cmake.yml/badge.svg)](https://github.com/Algorithms-and-Data-Structures-2021/semester-work-r-tree/actions/workflows/cmake.yml)
-
-Ссылка на [Google Drive](https://drive.google.com/drive/folders/1ddeC8PrXWq_y_pHifsi7SI74G1HFJOz6) с набором данных.
 
 _Краткое описание семестрового проекта._
 
@@ -89,6 +87,7 @@ python generate_csv_dataset.py data/insert/<название папки>
 Для тестирования необходимо было создать три бенчмарка: для вставки, поиска, и удаления элемента. Бенчмарки используют сгенерированные файлы и считают за какое время в наносекундах  происходит операция, после чего заносят результаты в отдельный файл .csv. Полученные результаты используются для вычисления среднего значения времени, а также построения графиков.
 
 Набор входных данных содержится в репозитории, поэтому для скачивания проекта может потребоваться время.
+Ссылка на [Google Drive](https://drive.google.com/drive/folders/1ddeC8PrXWq_y_pHifsi7SI74G1HFJOz6) с набором данных.
 
 ##### Список контрольных тестов
 
@@ -102,7 +101,7 @@ python generate_csv_dataset.py data/insert/<название папки>
 
 _Список использованных при реализации структуры данных источников._
 
-https://github.com/search?l=C%2B%2B&q=rtree&type=Repositories
-https://ru.wikipedia.org/wiki/R-дерево_(структура_данных)
-https://en.wikipedia.org/wiki/R-tree
-https://habr.com/ru/post/224965/
+1. https://github.com/search?l=C%2B%2B&q=rtree&type=Repositories
+2. https://ru.wikipedia.org/wiki/R-дерево_(структура_данных)
+3. https://en.wikipedia.org/wiki/R-tree
+4. https://habr.com/ru/post/224965/
