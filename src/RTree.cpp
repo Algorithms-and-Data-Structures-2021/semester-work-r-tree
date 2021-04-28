@@ -59,24 +59,24 @@ void RTree::insert(std::vector<float> *coords, std::vector<float> *dimensions, i
   assert(dimensions->size() == numDims);
 
   Entry *e = new Entry(coords, dimensions, entry);
-  RTree::Node l = chooseLeaf(root, e);
-  l.children.push_back(e);
+  RTree::Node *l = chooseLeaf(this->root, e);
+  l->children.push_back(e);
   size++;
-  e->parent = &l;
+  e->parent = l;
 
-  if (l.children.size() > maxEntries) {
-    std::vector<Node*> splits = splitNode(&l);
+  if (l->children.size() > maxEntries) {
+    std::vector<Node*> splits = splitNode(l);
     adjustTree(splits[0], splits[1]);
   } else {
-    adjustTree(&l, nullptr);
+    adjustTree(l, nullptr);
   }
 }
 
 
 //CHOOSE LEAF TO INSERT NEW OBJECT
-RTree::Node RTree::chooseLeaf(RTree::Node *n, RTree::Entry *e) {
+RTree::Node* RTree::chooseLeaf(RTree::Node *n, RTree::Entry *e) {
   if (n->leaf) {
-    return *n;
+    return n;
   }
 
   float minInc = std::numeric_limits<float>::max();
@@ -465,8 +465,9 @@ bool RTree::deleting(std::vector<float> *coords, std::vector<float> *dimensions,
 
   if(l == nullptr){
     std::wcout << "No such node. Why?.." << std::endl;
-    findLeaf(root, coords, dimensions, entry);
-  }
+//    findLeaf(root, coords, dimensions, entry);
+    return false;
+    }
 
   assert(l != nullptr);
   assert(l->leaf);
@@ -481,9 +482,9 @@ bool RTree::deleting(std::vector<float> *coords, std::vector<float> *dimensions,
       int index = 0;
 
       for(int i = 0; i < l->children.size(); i++){
-        if(l->children.at(i) == *li){
-          index = i + 1;
-        }
+//        if(l->children.at(i) == *li){
+//          index = i + 1;
+//        }
       }
 
       l->children.erase(l->children.begin() + index);

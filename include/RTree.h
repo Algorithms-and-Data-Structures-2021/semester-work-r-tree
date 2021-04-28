@@ -26,7 +26,7 @@ class RTree{
   };
 
  private:
-  RTree::Node chooseLeaf(RTree::Node *n, RTree::Entry *e);
+  RTree::Node* chooseLeaf(RTree::Node *n, RTree::Entry *e);
 
   float getRequiredExpansion(std::vector<float> *coords, std::vector<float> *dimensions, Node *e);
 
