@@ -50,7 +50,7 @@ int main() {
             c.push_back(static_cast<float>(stoi(token1)));
             c.push_back(static_cast<float>(stoi(token2)));
             const auto time_point_before_insert = chrono::steady_clock::now();
-            tree.insert(c,j);
+            tree.insert(&c,j);
             const auto time_point_after_insert = chrono::steady_clock::now();
             time_diff_insert += time_point_after_insert - time_point_before_insert;
           }

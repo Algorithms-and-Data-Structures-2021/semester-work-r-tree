@@ -50,7 +50,7 @@ int main() {
             vector<float> coords;
             coords.push_back(static_cast<float>(stoi(token1)));
             coords.push_back(static_cast<float>(stoi(token2)));
-            tree.insert(coords,j);
+            tree.insert(&coords,j);
           }
         }
         input_file.close();
@@ -69,7 +69,7 @@ int main() {
             coords.push_back(static_cast<float>(stoi(token1)));
             coords.push_back(static_cast<float>(stoi(token2)));
             const auto time_point_before_search = chrono::steady_clock::now();
-            tree.search(coords,dimensions);
+            tree.search(&coords,&dimensions);
             const auto time_point_after_search = chrono::steady_clock::now();
             time_diff_search += time_point_after_search - time_point_before_search;
           }
