@@ -1,8 +1,8 @@
-#include <fstream>      // ifstream
-#include <iostream>     // cout
-#include <string>       // string, stoi
-#include <string_view>  // string_view
-#include <chrono>       // high_resolution_clock, duration_cast, nanoseconds
+#include <fstream>
+#include <iostream>
+#include <string>
+#include <string_view>
+#include <chrono>
 #include <vector>
 
 // подключаем вашу структуру данных
@@ -22,7 +22,7 @@ int main() {
 
   // работа с набором данных
   vector <string> folders = {"01", "02", "03", "04", "05", "06", "07", "08", "09", "10"};
-  vector <string> files = {"100", "500", "1000", "5000", "10000","25000", "50000", "100000","250000", "500000","750000", "1000000"};
+  vector <string> files = {"100", "500", "1000", "5000", "10000","25000", "50000", "100000","250000", "500000","750000", "1000000","2500000","5000000"};
 
   RTree tree;
   for (const string& file : files) { // Проходим по всем 10 .csv файлам
@@ -46,20 +46,17 @@ int main() {
             string delimiter = ",";
             string token1 = line.substr(0, line.find(delimiter));
             string token2 = line.substr(line.find(delimiter)+1);
-            vector<float> c;
-            c.push_back(static_cast<float>(stoi(token1)));
-            c.push_back(static_cast<float>(stoi(token2)));
+            vector<float> coords = vector<float>{static_cast<float>(stoi(token1)),static_cast<float>(stoi(token2))};
             const auto time_point_before_insert = chrono::steady_clock::now();
-            tree.insert(&c,j);
+            tree.insert(&coords,1);
             const auto time_point_after_insert = chrono::steady_clock::now();
             time_diff_insert += time_point_after_insert - time_point_before_insert;
+            tree.deleting(&coords,1);
           }
         }
 
-
         const auto time_elapsed_ns_insert = chrono::duration_cast<chrono::nanoseconds>(time_diff_insert).count();
         cout << time_elapsed_ns_insert << endl;
-
         input_file.close();
 
         // Открываем файл для записи и вносим полученые данные

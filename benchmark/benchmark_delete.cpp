@@ -22,7 +22,7 @@ int main() {
 
   // работа с набором данных
   vector <string> folders = {"01", "02", "03", "04", "05", "06", "07", "08", "09", "10"};
-  vector <string> files = {"100", "500", "1000", "5000", "10000","25000", "50000", "100000","250000", "500000","750000", "1000000"};
+  vector <string> files = {"100", "500", "1000", "5000", "10000","25000", "50000", "100000","250000", "500000","750000", "1000000","2500000","5000000"};
 
   RTree tree;
   vector<float> dimensions = {0,0};
@@ -51,31 +51,13 @@ int main() {
             coords.push_back(static_cast<float>(stoi(token1)));
             coords.push_back(static_cast<float>(stoi(token2)));
             tree.insert(&coords,j);
-          }
-        }
-        auto k = 1;
-        input_file.close();
-        line = "1";
-        input_file = ifstream(path + folder + "/" + file + ".csv");
-        if (input_file) {
-          while (!line.empty()) {
-            getline(input_file, line);
-            if (line.empty()) {
-              break;
-            }
-            k++;
-            string delimiter = ",";
-            string token1 = line.substr(0, line.find(delimiter));
-            string token2 = line.substr(line.find(delimiter)+1);
-            vector<float> coords;
-            coords.push_back(static_cast<float>(stoi(token1)));
-            coords.push_back(static_cast<float>(stoi(token2)));
             const auto time_point_before_search = chrono::steady_clock::now();
-            tree.deleting(&coords,k);
+            tree.deleting(&coords,j);
             const auto time_point_after_search = chrono::steady_clock::now();
             time_diff_search += time_point_after_search - time_point_before_search;
           }
         }
+
 
         const auto time_elapsed_ns_insert = chrono::duration_cast<chrono::nanoseconds>(time_diff_search).count();
         cout << time_elapsed_ns_insert << endl;
