@@ -9,9 +9,9 @@ int RTree::numDims;
 
 
 // NODE STRUCTURE
-RTree::Node::Node(std::vector<float> coords, std::vector<float> dimensions, bool leaf) {
-  this->coords = coords;
-  this->dimensions = dimensions;
+RTree::Node::Node(std::vector<float> *coords, std::vector<float> *dimensions, bool leaf) {
+  this->coords = *coords;
+  this->dimensions = *dimensions;
   this->leaf = leaf;
 
   //  std::copy_n(coords.begin(), coords.size(), this->coords.begin());
@@ -29,11 +29,11 @@ RTree::Node *RTree::Node::buildRoot(bool asLeaf) {
     initDimensions[i] = -2.0f * static_cast<float>(std::sqrt(std::numeric_limits<float>::max()));
   }
 
-  return new RTree::Node(initCoords, initDimensions, asLeaf);
+  return new RTree::Node(&initCoords, &initDimensions, asLeaf);
 }
 
 
-RTree::Entry::Entry(std::vector<float> coords, std::vector<float> dimensions, int entry)
+RTree::Entry::Entry(std::vector<float> *coords, std::vector<float> *dimensions, int entry)
     : Node(coords, dimensions, true) {
   this->entry = entry;
 }
@@ -41,26 +41,27 @@ RTree::Entry::Entry(std::vector<float> coords, std::vector<float> dimensions, in
 
 // R-TREE CONSTRUCTOR
 RTree::RTree() {
+  assert(minEntries <= (maxEntries/2));
+  RTree::numDims = 2;
   this->maxEntries = 3;
   this->minEntries = 2;
-  this->numDims = 2;
   this->pointDims = {0, 0};
   this->root = Node::buildRoot(true);
 }
 
 
 //INSERT
-void RTree::insert(std::vector<float> coords, int entry){
-  insert(coords, pointDims, entry);
+void RTree::insert(std::vector<float> *coords, int entry){
+  insert(coords, &pointDims, entry);
 }
 
 
-void RTree::insert(std::vector<float> coords, std::vector<float> dimensions, int entry) {
-  assert(coords.size() == numDims);
-  assert(dimensions.size() == numDims);
+void RTree::insert(std::vector<float> *coords, std::vector<float> *dimensions, int entry) {
+  assert(coords->size() == numDims);
+  assert(dimensions->size() == numDims);
 
   Entry *e = new Entry(coords, dimensions, entry);
-  RTree::Node l = chooseLeaf(*root, *e);
+  RTree::Node l = chooseLeaf(root, e);
   l.children.push_back(e);
   size++;
   e->parent = &l;
@@ -76,16 +77,16 @@ void RTree::insert(std::vector<float> coords, std::vector<float> dimensions, int
 //INSERT HELP METHODS
 
 //CHOOSE LEAF
-RTree::Node RTree::chooseLeaf(RTree::Node n, RTree::Entry e) {
-  if (n.leaf) {
-    return n;
+RTree::Node RTree::chooseLeaf(RTree::Node *n, RTree::Entry *e) {
+  if (n->leaf) {
+    return *n;
   }
 
   float minInc = std::numeric_limits<float>::max();
   Node *next = nullptr;
 
-  for (RTree::Node *c : n.children) {
-    float inc = getRequiredExpansion(c->coords, c->dimensions, e);
+  for (RTree::Node *c : n->children) {
+    float inc = getRequiredExpansion(&(c->coords), &(c->dimensions), e);
 
     if (inc < minInc) {
       minInc = inc;
@@ -105,37 +106,37 @@ RTree::Node RTree::chooseLeaf(RTree::Node n, RTree::Entry e) {
     }
   }
 
-  return chooseLeaf(*next, e);
+  return chooseLeaf(&*next, e);
 }
 
 
-float RTree::getRequiredExpansion(std::vector<float> coords, std::vector<float> dimensions, RTree::Node e) {
+float RTree::getRequiredExpansion(std::vector<float> *coords, std::vector<float> *dimensions, RTree::Node *e) {
   float area = getArea(dimensions);
-  auto *deltas = new std::vector<float>(dimensions.size());
+  auto *deltas = new std::vector<float>(dimensions->size());
 
   for (unsigned long i = 0; i < deltas->size(); i++) {
-    if ((coords.at(i) + dimensions.at(i)) < (e.coords.at(i) + e.dimensions.at(i))) {
-      deltas->at(i) = e.coords.at(i) + e.dimensions.at(i) - coords.at(i) - dimensions.at(i);
-    } else if (coords.at(i) + dimensions.at(i) > (e.coords.at(i) + e.dimensions.at(i))) {
-      deltas->at(i) = coords.at(i) - e.coords.at(i);
+    if ((coords->at(i) + dimensions->at(i)) < (e->coords.at(i) + e->dimensions.at(i))) {
+      deltas->at(i) = e->coords.at(i) + e->dimensions.at(i) - coords->at(i) - dimensions->at(i);
+    } else if (coords->at(i) + dimensions->at(i) > (e->coords.at(i) + e->dimensions.at(i))) {
+      deltas->at(i) = coords->at(i) - e->coords.at(i);
     }
   }
 
   float expanded = 1.0f;
 
-  for (unsigned long i = 0; i < dimensions.size(); i++) {
-    expanded *= dimensions.at(i) + deltas->at(i);
+  for (unsigned long i = 0; i < dimensions->size(); i++) {
+    expanded *= dimensions->at(i) + deltas->at(i);
   }
 
   return (expanded - area);
 }
 
 
-float RTree::getArea(std::vector<float> dimensions) {
+float RTree::getArea(std::vector<float> *dimensions) {
   float area = 1.0f;
 
-  for (unsigned long i = 0; i < dimensions.size(); i++) {
-    area *= dimensions.at(i);
+  for (unsigned long i = 0; i < dimensions->size(); i++) {
+    area *= dimensions->at(i);
   }
 
   return area;
@@ -143,7 +144,7 @@ float RTree::getArea(std::vector<float> dimensions) {
 
 //SPLIT NODE
 std::vector<RTree::Node *> RTree::splitNode(RTree::Node *n) {
-  std::vector<Node *> nn = std::vector<RTree::Node *>{n, new Node(n->coords, n->dimensions, n->leaf)};
+  std::vector<Node *> nn = std::vector<RTree::Node *>{n, new Node(&(n->coords), &(n->dimensions), n->leaf)};
   nn.at(1)->parent = n->parent;
 
   if (nn.at(1) != nullptr) {
@@ -177,11 +178,11 @@ std::vector<RTree::Node *> RTree::splitNode(RTree::Node *n) {
       return nn;
     }
 
-    RTree::Node *c = pickNext(cc);
+    RTree::Node *c = pickNext(&cc);
     RTree::Node *preferred = nullptr;
 
-    float e0 = getRequiredExpansion(nn.at(0)->coords, nn.at(0)->dimensions, *c);
-    float e1 = getRequiredExpansion(nn.at(1)->coords, nn.at(1)->dimensions, *c);
+    float e0 = getRequiredExpansion(&(nn.at(0)->coords), &(nn.at(0)->dimensions), c);
+    float e1 = getRequiredExpansion(&(nn.at(1)->coords), &(nn.at(1)->dimensions), c);
 
     if (e0 < e1) {
       preferred = nn.at(0);
@@ -190,8 +191,8 @@ std::vector<RTree::Node *> RTree::splitNode(RTree::Node *n) {
       preferred = nn.at(1);
 
     } else {
-      float a0 = getArea(nn.at(0)->dimensions);
-      float a1 = getArea(nn.at(1)->dimensions);
+      float a0 = getArea(&(nn.at(0)->dimensions));
+      float a1 = getArea(&(nn.at(1)->dimensions));
 
       if (a0 < a1) {
         preferred = nn.at(0);
@@ -362,21 +363,21 @@ std::vector<RTree::Node *> RTree::pickSeeds(std::vector<Node *> *nn) {
 }
 
 
-RTree::Node *RTree::pickNext(std::vector<RTree::Node *> &cc) {
-  return cc[0];
+RTree::Node *RTree::pickNext(std::vector<RTree::Node *> *cc) {
+  return cc->at(0);
 }
 
 
 void RTree::search(std::vector<float> *coords, std::vector<float> *dimensions, RTree::Node *n, std::vector<int> *results){
   if (n->leaf){
     for (Node *e : n->children){
-      if (isOverlap(*coords, *dimensions, e->coords, e->dimensions)){
+      if (isOverlap(coords, dimensions, &(e->coords), &(e->dimensions))){
         results->push_back(((Entry *) e)->entry);
       }
     }
   }else{
     for (Node *c : n->children){
-      if (isOverlap(*coords, *dimensions, c->coords, c->dimensions)){
+      if (isOverlap(coords, dimensions, &(c->coords), &(c->dimensions))){
         search(coords, dimensions, c, results);
       }
     }
@@ -384,34 +385,34 @@ void RTree::search(std::vector<float> *coords, std::vector<float> *dimensions, R
 }
 
 
-std::vector<int> RTree::search(std::vector<float> coords, std::vector<float> dimensions){
-  assert(coords.size() == numDims);
-  assert(dimensions.size() == numDims);
-  std::vector<int> *results{};
+std::vector<int> RTree::search(std::vector<float> *coords, std::vector<float> *dimensions){
+  assert(coords->size() == numDims);
+  assert(dimensions->size() == numDims);
+  std::vector<int> results = {};
 
-  search(&coords, &dimensions, root, results);
+  search(coords, dimensions, root, &results);
 
-  return *results;
+  return results;
 }
 
 
-bool RTree::isOverlap(std::vector<float> scoords, std::vector<float> sdimensions, std::vector<float> coords,
-                      std::vector<float> dimensions){
+bool RTree::isOverlap(std::vector<float> *scoords, std::vector<float> *sdimensions, std::vector<float> *coords,
+                      std::vector<float> *dimensions){
 
   const float FUDGE_FACTOR=1.001f;
 
-  for (int i = 0; i < scoords.size(); i++){
+  for (int i = 0; i < scoords->size(); i++){
     bool overlapInThisDimension = false;
 
-    if (scoords[i] == coords[i]){
+    if (scoords->at(i) == coords->at(i)){
       overlapInThisDimension = true;
-    }else if (scoords[i] < coords[i]){
-      if (scoords[i] + (FUDGE_FACTOR * sdimensions[i]) >= coords[i]){
+    }else if (scoords->at(i) < coords->at(i)){
+      if (scoords->at(i) + (FUDGE_FACTOR * sdimensions->at(i)) >= coords->at(i)){
         overlapInThisDimension = true;
       }
     }
-    else if (scoords[i] > coords[i]){
-      if (coords[i] + (FUDGE_FACTOR * dimensions[i]) >= scoords[i])
+    else if (scoords->at(i) > coords->at(i)){
+      if (coords->at(i) + (FUDGE_FACTOR * dimensions->at(i)) >= scoords->at(i))
       {
         overlapInThisDimension = true;
       }
@@ -427,15 +428,15 @@ bool RTree::isOverlap(std::vector<float> scoords, std::vector<float> sdimensions
 
 
 //DELETE
-bool RTree::deleting(std::vector<float> &coords, std::vector<float> &dimensions, int entry) {
-  assert(coords.size() == numDims);
-  assert(dimensions.size() == numDims);
+bool RTree::deleting(std::vector<float> *coords, std::vector<float> *dimensions, int entry) {
+  assert(coords->size() == numDims);
+  assert(dimensions->size() == numDims);
 
-  RTree::Node *l = findLeaf(root, &coords, &dimensions, entry);
+  RTree::Node *l = findLeaf(root, coords, dimensions, entry);
 
   if(l == nullptr){
     std::wcout << "No such node. Why?.." << std::endl;
-    findLeaf(root, &coords, &dimensions, entry);
+    findLeaf(root, coords, dimensions, entry);
   }
 
   assert(l != nullptr);
@@ -475,32 +476,30 @@ bool RTree::deleting(std::vector<float> &coords, std::vector<float> &dimensions,
 }
 
 
-bool RTree::deleting(std::vector<float> coords, int entry){
-  return deleting(coords, pointDims, entry);
+bool RTree::deleting(std::vector<float> *coords, int entry){
+  return deleting(coords, &pointDims, entry);
 }
 
 
 RTree::Node* RTree::findLeaf(RTree::Node *n, std::vector<float> *coords, std::vector<float> *dimensions, int entry){
-  if (n->leaf){
-    for (Node *c : n->children){
-      if (((Entry *) c)->entry == entry){
+  if (n->leaf) {
+    for (Node *c : n->children) {
+      if (((Entry *) c)->entry == entry) {
         return n;
       }
     }
-
     return nullptr;
-  } else {
-
+  }else {
     for (Node *c : n->children){
-      if (isOverlap(c->coords, c->dimensions, *coords, *dimensions)){
+      if (isOverlap(&(c->coords), &(c->dimensions), coords, dimensions)){
         Node *result = findLeaf(c, coords, dimensions, entry);
         if (result != nullptr){
           return result;
         }
       }
-    }
 
-    return nullptr;
+      return nullptr;
+    }
   }
 }
 
@@ -569,7 +568,7 @@ void RTree::condenseTree(RTree::Node *n){
 
   for (Node ne : q){
     Entry *e = (Entry*) &ne;
-    insert(e->coords, e->dimensions, e->entry);
+    insert(&(e->coords), &(e->dimensions), e->entry);
   }
 
   size -= q.size();
