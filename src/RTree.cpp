@@ -473,7 +473,7 @@ bool RTree::deleting(std::vector<float> *coords, std::vector<float> *dimensions,
   assert(l->leaf);
 
   auto li = l->children.begin();
-  auto removed = 0;
+  auto removed = -1;
 
   while (li != l->children.end()) {
     Entry *e = (Entry *) *li;
@@ -482,9 +482,9 @@ bool RTree::deleting(std::vector<float> *coords, std::vector<float> *dimensions,
       int index = 0;
 
       for(int i = 0; i < l->children.size(); i++){
-//        if(l->children.at(i) == *li){
-//          index = i + 1;
-//        }
+        if(l->children.at(i) == *li){
+          index = i;
+        }
       }
 
       l->children.erase(l->children.begin() + index);
@@ -493,7 +493,7 @@ bool RTree::deleting(std::vector<float> *coords, std::vector<float> *dimensions,
     li++;
   }
 
-  if (removed != 0){
+  if (removed != -1){
     condenseTree(l);
     size--;
   }
@@ -502,7 +502,7 @@ bool RTree::deleting(std::vector<float> *coords, std::vector<float> *dimensions,
     root = Node::buildRoot(true);
   }
 
-  return (removed != 0);
+  return (removed != -1);
 }
 
 

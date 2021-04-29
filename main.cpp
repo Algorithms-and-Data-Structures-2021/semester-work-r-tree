@@ -17,6 +17,9 @@ int main(int argc, char *argv[]) {
   a->insert(&d, 2);
 
   a->deleting(&c, 1);
+  a->deleting(&b, 0);
+  a->deleting(&d, 2);
+  a->deleting(&d, 3);
 
 
 
