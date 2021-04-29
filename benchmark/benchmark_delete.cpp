@@ -1,8 +1,8 @@
-#include <fstream>      // ifstream
-#include <iostream>     // cout
-#include <string>       // string, stoi
-#include <string_view>  // string_view
-#include <chrono>       // high_resolution_clock, duration_cast, nanoseconds
+#include <fstream>
+#include <iostream>
+#include <string>
+#include <string_view>
+#include <chrono>
 #include <vector>
 
 // подключаем вашу структуру данных
