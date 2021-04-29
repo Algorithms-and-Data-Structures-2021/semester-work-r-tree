@@ -64,8 +64,9 @@ class RTree{
   std::vector<float> pointDims;
 
  public:
-  RTree();
+  int getSize();
 
+  RTree();
 
   void insert(std::vector<float> *coords, int entry);
 
