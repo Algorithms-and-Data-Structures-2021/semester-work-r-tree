@@ -17,7 +17,7 @@ RTree tree;
 int main() {
 
   // Tip 1: входные аргументы позволяют более гибко контролировать параметры вашей программы
-  const auto path = string (kDatasetPath)+"/insert/";
+  const auto path = string (kDatasetPath)+"/delete/";
   const auto output_path = string (kProjectPath)+"/benchmark/result/benchmark_delete_result.csv";
 
   // работа с набором данных
