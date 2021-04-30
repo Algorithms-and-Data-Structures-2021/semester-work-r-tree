@@ -1,2 +1,1 @@
 
-target_link_libraries(generate_csv_dataset PRIVATE project_warnings project_paths)
